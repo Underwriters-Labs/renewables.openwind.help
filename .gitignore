@@ -1,3 +1,5 @@
 website/content
 website/public
 backup
+.hugo_build.lock
+search-index.json
