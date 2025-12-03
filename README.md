@@ -25,8 +25,8 @@ Static  website generated with hugo from this repos github Wiki.
     ```
     (run the [Add Empty FrontMatter Script](website/tools/add_empty_frontmatter.py) )
 
-    2. modify all double square brackets `[[File Name]]` links to standard root based markdown links : `[Display Name](/File-Name)` ( run the [Convert wikiLinks script from tools](website/tools/convert_wiki_links.py))
-    3. Generate the SearchIndex by running the [Search Index Generator](website/tools/generate_search_index.py)
+    2. modify all double square brackets `[[File  Name]]` links to standard root based markdown links (lowercased) : `[Display Name](/file-Name)` ( run the [Convert wikiLinks script from  tools](website/tools/convert_wiki_links.py))
+    3. Generate the SearchIndex by running the  [Search Index Generator](website/tools  generate_search_index.py)
 
 3. run the `hugo` Command.
 
