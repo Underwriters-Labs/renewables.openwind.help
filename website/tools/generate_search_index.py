@@ -86,7 +86,11 @@ def main():
             full = os.path.join(dirpath, fname)
             rel = os.path.relpath(full, CONTENT_DIR)
             # define link path from filepath
-            link = '/' + os.path.splitext(rel)[0].replace('\\', '/').replace(' ', '-')
+            # convert backslashes to slashes, replace whitespace with hyphens, and lowercase
+            slug = os.path.splitext(rel)[0].replace('\\', '/')
+            slug = re.sub(r"\s+", '-', slug)
+            slug = slug.lower()
+            link = '/' + slug
             title, summary = extract_title_and_summary(full)
             pages.append({'title': title, 'summary': summary, 'link': link})
 
