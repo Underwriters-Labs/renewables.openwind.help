@@ -37,15 +37,23 @@ def ensure_out_dir(base_dir: Path) -> Path:
 
 
 def filename_for_url(url: str) -> str:
-    """Create a stable filename for a URL: sha8-basename (lowercased basename)."""
+    """Create a stable filename for a URL: sha8-basename.ext (preserving extension)."""
     parsed = urllib.parse.urlparse(url)
-    base = os.path.basename(parsed.path) or 'image'
-    # sanitize base a bit
-    base = re.sub(r'[^A-Za-z0-9._-]', '-', base)
-    base = base.strip('-')
+    path = parsed.path.split('?')[0]  # remove query string
+    base = os.path.basename(path) or 'image'
+    
+    # extract extension
+    name, ext = os.path.splitext(base)
+    if not ext or len(ext) > 10:  # guard against very long or missing extensions
+        ext = '.jpg'  # default fallback
+    
+    # sanitize name (keep only alphanumeric, dots, hyphens)
+    name = re.sub(r'[^A-Za-z0-9._-]', '-', name)
+    name = name.strip('-')
+    
     # prefix with short hash to avoid collisions
     h = hashlib.sha1(url.encode('utf-8')).hexdigest()[:8]
-    return f"{h}-{base}" if base else f"{h}.img"
+    return f"{h}-{name}{ext}" if name else f"{h}{ext}"
 
 
 def download_url(url: str, dest: Path) -> bool:
