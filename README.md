@@ -16,17 +16,24 @@ Static  website generated with hugo from this repos github Wiki.
  - Hugo (0.152.2)
 ## Steps to re-generate the static site: 
 1. copy the contents of the Open wind Wiki into the `website/content` folder.
-2. Modify files and/or run scripts:
+2. Run the orchestration script to process all content:
+   ```bash
+   python website/tools/run_all_tools.py --base website --backup
+   ```
+   This runs all processing steps in sequence:
+   - [Add Empty FrontMatter](website/tools/add_empty_frontmatter.py) — ensures all .md files have YAML frontmatter
+   - [Convert Wiki Links](website/tools/convert_wiki_links.py) — converts `[[File Name]]` to `[Display Name](/file-name)` (lowercased)
+   - [Download Images](website/tools/download_images.py) — downloads external images and updates links to serve locally
+   - [Generate Search Index](website/tools/generate_search_index.py) — regenerates the search index
 
-    1. modify ALL files to contain an Empty FrontMatter : 
-      ```yaml
-      ---
-      ---
-    ```
-    (run the [Add Empty FrontMatter Script](website/tools/add_empty_frontmatter.py) )
-
-    2. modify all double square brackets `[[File  Name]]` links to standard root based markdown links (lowercased) : `[Display Name](/file-Name)` ( run the [Convert wikiLinks script from  tools](website/tools/convert_wiki_links.py))
-    3. Generate the SearchIndex by running the  [Search Index Generator](website/tools  generate_search_index.py)
+   **Available Flags:**
+   - `--base PATH` — specify the base path (default: `website`)
+   - `--dry-run` — preview what would happen without making any changes to files
+   - `--backup` — create `.bak` backup copies of files before modifying originals
+   - `--skip-frontmatter` — skip the frontmatter addition step
+   - `--skip-wiki-links` — skip the wiki link conversion step
+   - `--skip-images` — skip the image download step
+   - `--skip-search` — skip the search index regeneration step
 
 3. run the `hugo` Command.
 
