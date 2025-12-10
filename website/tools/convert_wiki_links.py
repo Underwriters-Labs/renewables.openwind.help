@@ -23,7 +23,10 @@ import urllib.parse
 
 
 WIKI_RE = re.compile(r"\[\[([^\]|]+)(?:\|([^\]]+))?\]\]")
-LINK_RE = re.compile(r'(?<!!)\[([^\]]+)\]\(\s*([^\)\s]+)(?:\s+["\'].*?["\'])?\s*\)')
+LINK_RE = re.compile(
+    r'(?<!!)\[([^\]]+)\]\(\s*([^\)\s]+)(?:\s+["\'].*?["\'])?\s*\)')
+GITHUB_WIKI_RE = re.compile(
+    r'https://github\.com/[^/]+/[^/]+/wiki(?:/([^)\s#?]+))?')
 
 
 def normalize_target(target: str) -> str:
@@ -60,6 +63,25 @@ def replace_in_text(text: str) -> tuple[str, int]:
     return new_text, n
 
 
+def replace_github_wiki_links(text: str) -> tuple[str, int]:
+    """Replace GitHub wiki URLs with root-based links. Returns (new_text, count)."""
+
+    def repl(match: re.Match):
+        page = match.group(1)
+        if page:
+            # Convert URL-encoded page name to readable format
+            page_decoded = urllib.parse.unquote(page)
+            # Convert to root path
+            href = normalize_target(page_decoded)
+        else:
+            # Base wiki URL without page -> home
+            href = '/'
+        return href
+
+    new_text, n = GITHUB_WIKI_RE.subn(repl, text)
+    return new_text, n
+
+
 def normalize_markdown_links(text: str) -> tuple[str, int]:
     """Lowercase internal markdown link targets. Returns (new_text, count)."""
 
@@ -80,7 +102,8 @@ def normalize_markdown_links(text: str) -> tuple[str, int]:
         # ensure root prefix
         new_path = '/' + path if path != '' else '/'
         # rebuild URL preserving query/fragment
-        new_href = urllib.parse.urlunparse((parsed.scheme, parsed.netloc, new_path, parsed.params, parsed.query, parsed.fragment))
+        new_href = urllib.parse.urlunparse(
+            (parsed.scheme, parsed.netloc, new_path, parsed.params, parsed.query, parsed.fragment))
         return f'[{label}]({new_href})'
 
     new_text, n = LINK_RE.subn(repl, text)
@@ -94,12 +117,16 @@ def files_to_scan(base_dir: Path):
             yield p
 
 
-def process_file(path: Path, dry_run: bool=False, backup: bool=False, lowercase_links: bool=False):
+def process_file(path: Path, dry_run: bool = False, backup: bool = False, lowercase_links: bool = False):
     text = path.read_text(encoding='utf-8')
     total_count = 0
 
     # first, convert wiki links
     new_text, count = replace_in_text(text)
+    total_count += count
+
+    # convert GitHub wiki URLs
+    new_text, count = replace_github_wiki_links(new_text)
     total_count += count
 
     # optionally normalize existing markdown links
@@ -120,10 +147,14 @@ def process_file(path: Path, dry_run: bool=False, backup: bool=False, lowercase_
 
 def main(argv=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument('--base', '-b', default='.', help='Base path to scan (default: .)')
-    parser.add_argument('--dry-run', action='store_true', help='Show changes but do not write files')
-    parser.add_argument('--backup', action='store_true', help='Before writing, save a .bak copy of changed files')
-    parser.add_argument('--lowercase-links', action='store_true', help='Lowercase internal markdown link targets')
+    parser.add_argument('--base', '-b', default='.',
+                        help='Base path to scan (default: .)')
+    parser.add_argument('--dry-run', action='store_true',
+                        help='Show changes but do not write files')
+    parser.add_argument('--backup', action='store_true',
+                        help='Before writing, save a .bak copy of changed files')
+    parser.add_argument('--lowercase-links', action='store_true',
+                        help='Lowercase internal markdown link targets')
     args = parser.parse_args(argv)
 
     base = Path(args.base).resolve()
@@ -137,10 +168,12 @@ def main(argv=None):
     changed_files = []
 
     # scan content files under website/content if that exists, else whole base
-    scan_dir = content_base / 'content' if (content_base / 'content').is_dir() else content_base
+    scan_dir = content_base / \
+        'content' if (content_base / 'content').is_dir() else content_base
 
     for p in files_to_scan(scan_dir):
-        cnt, _ = process_file(p, dry_run=args.dry_run, backup=args.backup, lowercase_links=args.lowercase_links)
+        cnt, _ = process_file(
+            p, dry_run=args.dry_run, backup=args.backup, lowercase_links=args.lowercase_links)
         if cnt:
             processed += cnt
             changed_files.append((p, cnt))
@@ -155,7 +188,8 @@ def main(argv=None):
             print(f'  {p}  -> {cnt} replacements')
         return 0
 
-    print(f'Applied replacements: {processed} occurrences across {len(changed_files)} files')
+    print(
+        f'Applied replacements: {processed} occurrences across {len(changed_files)} files')
     for p, cnt in changed_files:
         print(f'  modified {p} ({cnt} replacements)')
 

@@ -18,8 +18,7 @@ Usage in templates: {{ partial "sidebar.html" . }}
 
 <aside id="site-sidebar" class="site-sidebar" role="complementary">
   {{ if ne $clean "" }}
-  <div
-    class="prose prose-slate dark:prose-invert max-w-none leading-snug prose-headings:font-semibold prose-headings:text-slate-800 dark:prose-headings:text-slate-100 prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:font-medium prose-a:no-underline hover:prose-a:underline prose-a:transition-all prose-p:text-slate-700 dark:prose-p:text-slate-300 prose-p:leading-tight prose-li:text-slate-700 dark:prose-li:text-slate-300 prose-li:leading-tight prose-strong:text-slate-900 dark:prose-strong:text-slate-100">
+  <div class="">
     {{ $clean | markdownify | safeHTML }}
   </div>
   {{ end }}
