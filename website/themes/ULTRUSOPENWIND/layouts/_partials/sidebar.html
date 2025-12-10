@@ -1,10 +1,10 @@
 {{/*
-  Sidebar partial — renders content/_Sidebar.md (if present) and the site menu
-  The partial is intentionally written to be flexible: it will render optional
-  markdown content (so editors can manage a quick toc in content/_Sidebar.md)
-  and then fall back to the menu partial for structured navigation.
+Sidebar partial — renders content/_Sidebar.md (if present) and the site menu
+The partial is intentionally written to be flexible: it will render optional
+markdown content (so editors can manage a quick toc in content/_Sidebar.md)
+and then fall back to the menu partial for structured navigation.
 
-  Usage in templates: {{ partial "sidebar.html" . }}
+Usage in templates: {{ partial "sidebar.html" . }}
 */}}
 
 {{ $page := . }}
@@ -14,18 +14,13 @@
 {{- /* strip YAML frontmatter (empty or with content) so it doesn't render */ -}}
 {{ $clean := replaceRE `(?s)^\s*---\s.*?---\s*` "" $raw }}
 
- 
 
-<aside id="site-sidebar" class="site-sidebar" role="complementary" aria-label="Sidebar">
-  <div class="sidebar-header">
-    <button class="sidebar-collapse-toggle" aria-controls="site-sidebar" aria-expanded="true" title="Collapse sidebar">◀</button>
-    <div class="sidebar-title">Contents</div>
-  </div>
 
+<aside id="site-sidebar" class="site-sidebar" role="complementary">
   {{ if ne $clean "" }}
-    <div class="sidebar-markdown">
-      {{ $clean | markdownify | safeHTML }}
-    </div>
+  <div
+    class="prose prose-slate dark:prose-invert max-w-none leading-snug prose-headings:font-semibold prose-headings:text-slate-800 dark:prose-headings:text-slate-100 prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:font-medium prose-a:no-underline hover:prose-a:underline prose-a:transition-all prose-p:text-slate-700 dark:prose-p:text-slate-300 prose-p:leading-tight prose-li:text-slate-700 dark:prose-li:text-slate-300 prose-li:leading-tight prose-strong:text-slate-900 dark:prose-strong:text-slate-100">
+    {{ $clean | markdownify | safeHTML }}
+  </div>
   {{ end }}
-
 </aside>

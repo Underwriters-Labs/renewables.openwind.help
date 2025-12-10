@@ -1,13 +1,26 @@
 <!DOCTYPE html>
 <html lang="{{ site.Language.LanguageCode }}" dir="{{ or site.Language.LanguageDirection `ltr` }}">
+
 <head>
   {{ partial "head.html" . }}
 </head>
+
 <body>
-  <header>
+  <header class="site-header bg-ultrus text-pebble">
     {{ partial "header.html" . }}
   </header>
-
+  <div class="bg-black">
+    <div class="site-header-inner bg-black text-center py-2">
+      <nav class="site-submenu flex items-center justify-center gap-6">
+        <a href="https://ul-renewables.com/openwind/"
+          class="text-white hover:text-pebble/80 transition-colors font-medium">Learn more about Openwind</a>
+        <a href="https://ul-renewables.com/" class="text-white hover:text-pebble/80 transition-colors font-medium">Buy a
+          license</a>
+        <a href="https://ul-renewables.com/contacts?product=Openwind"
+          class="text-white hover:text-pebble/80 transition-colors font-medium">Contact Support Team</a>
+      </nav>
+    </div>
+  </div>
   <div class="site-page">
     {{/* Sidebar lives alongside main content for layout */}}
     {{ partial "sidebar.html" . }}
@@ -16,8 +29,9 @@
       {{ block "main" . }}{{ end }}
     </main>
   </div>
-  <footer>
+  <footer class="bg-black">
     {{ partial "footer.html" . }}
   </footer>
 </body>
+
 </html>
