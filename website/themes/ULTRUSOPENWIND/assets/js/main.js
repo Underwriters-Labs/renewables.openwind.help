@@ -128,13 +128,21 @@ document.addEventListener('DOMContentLoaded', function () {
       a.className = 'result';
       a.href = it.link;
       a.setAttribute('role','option');
-      a.innerHTML = '<span class="title">'+escapeHtml(it.title)+'</span>' + (it.summary ? '<span class="summary">'+escapeHtml(it.summary)+'</span>' : '');
+      var summaryText = it.summary ? escapeHtml(truncate(it.summary, 50)) : '';
+      a.innerHTML = '<span class="title">'+escapeHtml(it.title)+'</span>' + (summaryText ? '<span class="summary">'+summaryText+'</span>' : '');
       a.addEventListener('click', function(){ if (searchResultsEl) searchResultsEl.setAttribute('hidden',''); });
       searchResultsEl.appendChild(a);
     });
   }
 
   function escapeHtml(s){ return (s||'').toString().replace(/[&<>"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+
+  // truncate a string to `n` characters and append an ellipsis if trimmed
+  function truncate(s, n){
+    s = (s||'').toString();
+    if (s.length <= n) return s;
+    return s.slice(0, n).replace(/\s+$/,'') + '…';
+  }
 
   if (searchInput && searchResultsEl){
     var searchTimer = null;
