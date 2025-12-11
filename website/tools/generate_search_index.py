@@ -73,6 +73,32 @@ def extract_title_and_summary(path):
 
     return title, summary or ''
 
+
+def kebab_to_title_case(slug):
+    """Convert kebab-case slug to Title Case."""
+    # Remove leading/trailing slashes
+    slug = slug.strip('/')
+    # Split on hyphens and capitalize each word
+    words = slug.split('-')
+    return ' '.join(word.capitalize() for word in words)
+
+
+def strip_links_and_images(text):
+    """Remove markdown images, links, and HTML tags from text."""
+    # Remove markdown images: ![alt](url)
+    text = re.sub(r'!\[([^\]]*)\]\([^\)]+\)', '', text)
+    # Remove markdown links: [text](url) -> text
+    text = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', text)
+    # Remove HTML img tags
+    text = re.sub(r'<img[^>]+>', '', text)
+    # Remove HTML anchor tags but keep inner text: <a href="...">text</a> -> text
+    text = re.sub(r'<a[^>]*>([^<]*)</a>', r'\1', text)
+    # Remove any other HTML tags
+    text = re.sub(r'<[^>]+>', '', text)
+    # Clean up excess whitespace
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text
+
 def main():
     pages = []
     for dirpath, _, filenames in os.walk(CONTENT_DIR):
@@ -91,7 +117,11 @@ def main():
             slug = re.sub(r"\s+", '-', slug)
             slug = slug.lower()
             link = '/' + slug
-            title, summary = extract_title_and_summary(full)
+            # derive title from link (kebab-case -> Title Case)
+            title = kebab_to_title_case(link)
+            _, summary = extract_title_and_summary(full)
+            # strip links and images from summary
+            summary = strip_links_and_images(summary)
             pages.append({'title': title, 'summary': summary, 'link': link})
 
     # ensure output dir exists
