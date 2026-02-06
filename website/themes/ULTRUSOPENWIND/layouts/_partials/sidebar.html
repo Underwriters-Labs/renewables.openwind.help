@@ -1,0 +1,25 @@
+{{/*
+Sidebar partial — renders content/_Sidebar.md (if present) and the site menu
+The partial is intentionally written to be flexible: it will render optional
+markdown content (so editors can manage a quick toc in content/_Sidebar.md)
+and then fall back to the menu partial for structured navigation.
+
+Usage in templates: {{ partial "sidebar.html" . }}
+*/}}
+
+{{ $page := . }}
+
+{{- /* Load markdown sidebar content if available */ -}}
+{{ $raw := readFile "content/_Sidebar.md" | default "" }}
+{{- /* strip YAML frontmatter (empty or with content) so it doesn't render */ -}}
+{{ $clean := replaceRE `(?s)^\s*---\s.*?---\s*` "" $raw }}
+
+
+
+<aside id="site-sidebar" class="site-sidebar" role="complementary">
+  {{ if ne $clean "" }}
+  <div class="">
+    {{ $clean | markdownify | safeHTML }}
+  </div>
+  {{ end }}
+</aside>

@@ -1,0 +1,16 @@
+<div class="site-header-inner bg-ultrus text-pebble flex items-center text-white justify-between py-4">
+  <button class="sidebar-toggle" aria-controls="site-sidebar" aria-expanded="false" title="Toggle navigation">
+    ☰ <span class="visually-hidden">Toggle navigation</span>
+  </button>
+
+  <h1 class="site-title text-white font-semibold text-2xl">{{ site.Title }}</h1>
+
+  <!-- Search (fuzzy client-side) -->
+  <div class="site-search" role="search">
+    <label for="site-search-input" class="visually-hidden">Search the docs</label>
+    <input id="site-search-input" class="site-search-input text-ultrus" type="search"
+      placeholder="Search documentation…" aria-label="Search documentation" autocomplete="off">
+    <div id="site-search-results" class="site-search-results" role="listbox" aria-label="Search results" hidden></div>
+  </div>
+
+</div>

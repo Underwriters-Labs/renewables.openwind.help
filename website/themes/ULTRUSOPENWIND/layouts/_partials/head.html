@@ -1,0 +1,16 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>
+	{{ if .IsHome }}
+		{{ site.Title }}
+	{{ else }}
+		{{ $page := . }}
+		{{ with .File }}
+			{{ printf "%s %s | %s" $page.Title .BaseFileName site.Title }}
+		{{ else }}
+			{{ printf "%s | %s" $page.Title site.Title }}
+		{{ end }}
+	{{ end }}
+</title>
+{{ partialCached "head/css.html" . }}
+{{ partialCached "head/js.html" . }}

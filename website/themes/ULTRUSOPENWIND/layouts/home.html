@@ -1,0 +1,14 @@
+{{ define "main" }}
+  {{ $raw := readFile "content/Home.md" | default "" }}
+  {{- /* strip YAML frontmatter (empty or with content) so it doesn't render */ -}}
+  {{ $clean := replaceRE `(?s)^\s*---\s.*?---\s*` "" $raw }}
+  {{ if ne $clean "" }}
+    <p class="home">
+      {{ $clean | markdownify | safeHTML }}
+    </p>
+  {{ else }}
+    <p class="home">
+      <p>Openwind — official documentation site.</p>
+    </p>
+  {{ end }}
+{{ end }}

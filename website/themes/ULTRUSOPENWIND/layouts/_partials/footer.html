@@ -1,0 +1,23 @@
+{{/*
+Footer partial: load and render the content of content/_Footer.md if present.
+Approach: use Hugo's readFile (reads from project root) then markdownify the raw
+markdown and output safe HTML. This lets non-technical users edit the
+footer via content/_Footer.md while keeping the partial simple.
+
+Fallback: if the file isn't found or is empty, render a minimal default so
+pages still have a footer.
+*/}}
+
+{{ $raw := readFile "content/_Footer.md" | default "" }}
+{{- /* strip YAML frontmatter (empty or with content) so it doesn't render */ -}}
+{{ $clean := replaceRE `(?s)^\s*---\s.*?---\s*` "" $raw }}
+
+{{ if ne $clean "" }}
+<footer class="site-footer bg-black text-pebble px-4 md:px-8 lg:px-16 py-4">
+	UL LLC ©2025. All rights reserved.
+</footer>
+{{ else }}
+<footer class="site-footer">
+	<p>Openwind — official documentation site.</p>
+</footer>
+{{ end }}

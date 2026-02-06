@@ -1,0 +1,5 @@
+website/content
+website/public
+website/static
+backup
+.hugo_build.lock
