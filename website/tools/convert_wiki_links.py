@@ -28,6 +28,9 @@ LINK_RE = re.compile(
 GITHUB_WIKI_RE = re.compile(
     r'https://github\.com/[^/]+/[^/]+/wiki(?:/([^)\s#?]+))?')
 
+# Match legacy Openwind help site URLs that should be rewritten to local slugs
+OPENWIND_RE = re.compile(r'https?://(?:www\.)?(?:openwind|wn)\.ul-renewables\.com([^\s)\]]+)', re.IGNORECASE)
+
 
 def normalize_target(target: str) -> str:
     """Normalize the target to a root path.
@@ -82,6 +85,49 @@ def replace_github_wiki_links(text: str) -> tuple[str, int]:
     return new_text, n
 
 
+def replace_openwind_links(text: str) -> tuple[str, int]:
+    """Rewrite legacy openwind.ul-renewables.com links to root-based site links.
+
+    Examples:
+      https://openwind.ul-renewables.com/simple-algorithm/articles-xwa-algorithm-harris1996.htm
+        -> /harris-1996-algorithm
+    """
+
+    def make_slug_from_path(path: str) -> str:
+        # strip query/fragment and extension
+        path = path.split('?')[0].split('#')[0]
+        # remove leading/trailing slashes
+        path = path.strip('/')
+        if not path:
+            return '/'
+        # take the last path component if it looks file-like, else use full path
+        parts = path.split('/')
+        candidate = parts[-1]
+        # remove .htm/.html
+        candidate = re.sub(r"\.html?$", '', candidate, flags=re.IGNORECASE)
+        # drop common prefixes like 'articles-' or 'articles-xwa-algorithm-'
+        candidate = re.sub(r'^(?:articles(?:-[a-z0-9]+)*-)+', '', candidate, flags=re.IGNORECASE)
+        # insert hyphen between letters and digits (e.g. harris1996 -> harris-1996)
+        candidate = re.sub(r'([A-Za-z])([0-9])', r'\1-\2', candidate)
+        candidate = re.sub(r'([0-9])([A-Za-z])', r'\1-\2', candidate)
+        # replace non-alphanumeric characters with hyphens
+        candidate = re.sub(r'[^A-Za-z0-9]+', '-', candidate)
+        candidate = candidate.strip('-').lower()
+        if not candidate:
+            # fallback to using joined path components
+            joined = '-'.join(re.sub(r'[^A-Za-z0-9]+','-', p).strip('-') for p in parts if p)
+            return '/' + joined.lower()
+        return '/' + candidate
+
+    def repl(match: re.Match):
+        path = match.group(1)
+        slug = make_slug_from_path(path)
+        return slug
+
+    new_text, n = OPENWIND_RE.subn(repl, text)
+    return new_text, n
+
+
 def normalize_markdown_links(text: str) -> tuple[str, int]:
     """Lowercase internal markdown link targets. Returns (new_text, count)."""
 
@@ -127,6 +173,10 @@ def process_file(path: Path, dry_run: bool = False, backup: bool = False, lowerc
 
     # convert GitHub wiki URLs
     new_text, count = replace_github_wiki_links(new_text)
+    total_count += count
+
+    # convert legacy openwind.ul-renewables.com links to local slugs
+    new_text, count = replace_openwind_links(new_text)
     total_count += count
 
     # optionally normalize existing markdown links
