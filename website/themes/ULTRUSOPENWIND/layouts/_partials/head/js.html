@@ -14,7 +14,13 @@
 {{- end }}
 {{- end }}
 {{- end }}
-<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+{{ $tailwind := resources.Get "js/tailwind.js" }}
+{{- if hugo.IsDevelopment }}
+  {{- $tailwind = $tailwind | js.Build (dict "sourceMap" "external" "targetPath" "js/tailwind.js") }}
+{{- else }}
+  {{- $tailwind = $tailwind | js.Build (dict "minify" true "targetPath" "js/tailwind.js") | fingerprint }}
+{{- end }}
+<script src="{{ $tailwind.RelPermalink }}"></script>
 <script>
   tailwind.config = {
     theme: {
