@@ -158,6 +158,34 @@ header {
   padding: 0 1rem
 }
 
+.site-main blockquote:has(> ul),
+.site-main blockquote:has(> ol) {
+  margin: 0.75rem 0 1rem 1.5rem;
+  padding-left: 0;
+  border-left: 0;
+  font-style: normal;
+  color: inherit;
+}
+
+.site-main blockquote > ul,
+.site-main blockquote > ol {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.site-main blockquote > ul {
+  list-style: disc;
+}
+
+.site-main blockquote > ol {
+  list-style: decimal;
+}
+
+.site-main blockquote > ul > li,
+.site-main blockquote > ol > li {
+  margin: 0.35rem 0;
+}
+
 footer.site-footer {
   border-top: 1px solid var(--border);
   padding: 1rem;
