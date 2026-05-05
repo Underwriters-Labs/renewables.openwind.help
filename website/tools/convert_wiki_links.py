@@ -130,8 +130,8 @@ def replace_openwind_links(text: str) -> tuple[str, int]:
     return new_text, n
 
 
-def normalize_markdown_links(text: str) -> tuple[str, int]:
-    """Lowercase internal markdown link targets. Returns (new_text, count)."""
+def normalize_markdown_links(text: str, lowercase: bool = False) -> tuple[str, int]:
+    """Normalize internal markdown link targets to root-based paths. Returns (new_text, count)."""
 
     def repl(match: re.Match):
         label = match.group(1)
@@ -139,14 +139,14 @@ def normalize_markdown_links(text: str) -> tuple[str, int]:
         # skip absolute URLs (with scheme) and anchors
         if '://' in href or href.startswith('#'):
             return match.group(0)
-        # normalize path: remove leading ./ or ../ or leading slashes, lowercase, then prefix with '/'
+        # normalize path: remove leading ./ or ../ or leading slashes, then prefix with '/'
         parsed = urllib.parse.urlparse(href)
         path = parsed.path
         # remove leading './' and '../' and any leading slashes
         path = re.sub(r'^(\.{1,2}/)+', '', path)
         path = path.lstrip('/')
-        # lowercase the path
-        path = path.lower()
+        if lowercase:
+            path = path.lower()
         # strip legacy html suffixes from internal links
         path = re.sub(r"(?:\.html?|html)$", "", path)
         # ensure root prefix
@@ -154,6 +154,8 @@ def normalize_markdown_links(text: str) -> tuple[str, int]:
         # rebuild URL preserving query/fragment
         new_href = urllib.parse.urlunparse(
             (parsed.scheme, parsed.netloc, new_path, parsed.params, parsed.query, parsed.fragment))
+        if new_href == match.group(2):
+            return match.group(0)
         return f'[{label}]({new_href})'
 
     new_text, n = LINK_RE.subn(repl, text)
@@ -183,11 +185,10 @@ def process_file(path: Path, dry_run: bool = False, backup: bool = False, lowerc
     new_text, count = replace_openwind_links(new_text)
     total_count += count
 
-    # optionally normalize existing markdown links
-    if lowercase_links:
-        new_text2, count2 = normalize_markdown_links(new_text)
-        new_text = new_text2
-        total_count += count2
+    # always normalize markdown links to root-based paths; lowercase only if requested
+    new_text2, count2 = normalize_markdown_links(new_text, lowercase=lowercase_links)
+    new_text = new_text2
+    total_count += count2
 
     if total_count > 0:
         if dry_run:
