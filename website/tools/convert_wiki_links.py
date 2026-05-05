@@ -44,8 +44,8 @@ def normalize_target(target: str) -> str:
     t = t.strip('/')
     # replace spaces and consecutive whitespace with single hyphen
     t = re.sub(r"\s+", "-", t)
-    # lowercase the path so generated links are always lowercase
-    t = t.lower()
+    # # lowercase the path so generated links are always lowercase
+    # t = t.lower()
     # strip legacy html suffixes from page targets
     t = re.sub(r"(?:\.html?|html)$", "", t)
     return '/' + t
