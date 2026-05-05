@@ -80,7 +80,7 @@ def main(argv=None):
 
     # Step 2: Convert wiki links
     if not args.skip_wiki_links:
-        cmd = ['python', str(tools_dir / 'convert_wiki_links.py'), '--base', str(base_path), '--lowercase-links']
+        cmd = ['python', str(tools_dir / 'convert_wiki_links.py'), '--base', str(base_path)]
         if args.dry_run:
             cmd.append('--dry-run')
         if args.backup:

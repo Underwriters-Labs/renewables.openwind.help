@@ -46,6 +46,8 @@ def normalize_target(target: str) -> str:
     t = re.sub(r"\s+", "-", t)
     # lowercase the path so generated links are always lowercase
     t = t.lower()
+    # strip legacy html suffixes from page targets
+    t = re.sub(r"(?:\.html?|html)$", "", t)
     return '/' + t
 
 
@@ -145,6 +147,8 @@ def normalize_markdown_links(text: str) -> tuple[str, int]:
         path = path.lstrip('/')
         # lowercase the path
         path = path.lower()
+        # strip legacy html suffixes from internal links
+        path = re.sub(r"(?:\.html?|html)$", "", path)
         # ensure root prefix
         new_path = '/' + path if path != '' else '/'
         # rebuild URL preserving query/fragment

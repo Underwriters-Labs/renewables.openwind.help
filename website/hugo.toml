@@ -2,7 +2,7 @@ baseURL = 'https://example.org/'
 languageCode = 'en-us'
 title = 'Openwind Help'
 theme = 'ULTRUSOPENWIND'
-
+disablePathToLower = true
 [markup]
   [markup.goldmark]
     [markup.goldmark.renderer]
