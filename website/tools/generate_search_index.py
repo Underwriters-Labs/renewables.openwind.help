@@ -112,10 +112,9 @@ def main():
             full = os.path.join(dirpath, fname)
             rel = os.path.relpath(full, CONTENT_DIR)
             # define link path from filepath
-            # convert backslashes to slashes, replace whitespace with hyphens, and lowercase
+            # convert backslashes to slashes, replace whitespace with hyphens, remove .md extension
             slug = os.path.splitext(rel)[0].replace('\\', '/')
             slug = re.sub(r"\s+", '-', slug)
-            slug = slug.lower()
             link = '/' + slug
             # derive title from link (kebab-case -> Title Case)
             title = kebab_to_title_case(link)
