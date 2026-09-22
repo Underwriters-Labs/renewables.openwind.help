@@ -30,6 +30,19 @@ GITHUB_WIKI_RE = re.compile(
 
 # Match legacy Openwind help site URLs that should be rewritten to local slugs
 OPENWIND_RE = re.compile(r'https?://(?:www\.)?(?:openwind|wn)\.ul-renewables\.com([^\s)\]]+)', re.IGNORECASE)
+DASH_TRANSLATION = str.maketrans({
+    '\u2010': None,
+    '\u2011': None,
+    '\u2012': None,
+    '\u2013': None,
+    '\u2014': None,
+    '\u2212': None,
+})
+
+
+def normalize_slug_punctuation(value: str) -> str:
+    """Normalize Unicode punctuation that Hugo removes from generated slugs."""
+    return value.translate(DASH_TRANSLATION)
 
 
 def normalize_target(target: str) -> str:
@@ -37,9 +50,10 @@ def normalize_target(target: str) -> str:
 
     - strip surrounding whitespace
     - replace sequences of whitespace with hyphen
-    - preserve existing punctuation/hyphens
+    - remove Unicode dashes that Hugo omits from page slugs
+    - preserve existing ASCII punctuation/hyphens
     """
-    t = target.strip()
+    t = normalize_slug_punctuation(target.strip())
     # remove any leading/trailing slashes the user may have added
     t = t.strip('/')
     # replace spaces and consecutive whitespace with single hyphen
@@ -141,7 +155,7 @@ def normalize_markdown_links(text: str, lowercase: bool = False) -> tuple[str, i
             return match.group(0)
         # normalize path: remove leading ./ or ../ or leading slashes, then prefix with '/'
         parsed = urllib.parse.urlparse(href)
-        path = parsed.path
+        path = normalize_slug_punctuation(parsed.path)
         # remove leading './' and '../' and any leading slashes
         path = re.sub(r'^(\.{1,2}/)+', '', path)
         path = path.lstrip('/')
