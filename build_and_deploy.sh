@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export PATH=/usr/local/bin:/usr/bin:/bin:/root/.local/bin:$PATH
+
 # Build and deploy script for OpenWind Help documentation
 # Pulls latest wiki content, builds Hugo site, and deploys to /srv/openwind.ul-renewables.com
 # Designed to be run daily via cron
@@ -17,7 +19,7 @@ REMOTE_HOST="192.168.17.21"
 REMOTE_DEPLOY_DIR="/srv/openwind.ul-renewables.com"
 REMOTE_BACKUP_DIR="/srv/openwind.ul-renewables.com.backup"
 # Log file location - use home directory for better permissions
-LOG_FILE="${LOG_FILE:-$HOME/.openwind-build.log}"
+LOG_FILE="${LOG_FILE:-$HOME/openwind-build.log}"
 TEMP_BUILD_DIR=$(mktemp -d)
 
 # Logging function
@@ -112,7 +114,7 @@ sudo chown $REMOTE_USER:$REMOTE_USER \"$REMOTE_DEPLOY_DIR\"
 
 # Deploy using rsync over SSH
 log "Syncing built site to remote server..."
-rsync -avz --delete --rsh='ssh' "$TEMP_BUILD_DIR/" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_DEPLOY_DIR/" || error_exit "Failed to deploy to remote server"
+rsync -avz --checksum --delete --rsh='ssh' "$TEMP_BUILD_DIR/" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_DEPLOY_DIR/" || error_exit "Failed to deploy to remote server"
 
 # Set proper permissions on remote
 log "Setting directory permissions on remote server..."
@@ -120,6 +122,8 @@ ssh -q "$REMOTE_USER@$REMOTE_HOST" "sudo chmod -R 755 \"$REMOTE_DEPLOY_DIR\"" ||
 
 log "Remote deployment completed successfully!"
 log "Static site ready at: $REMOTE_USER@$REMOTE_HOST:$REMOTE_DEPLOY_DIR"
+timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+echo "${timestamp} - Last run." >> "$LOG_FILE"
 
 exit 0
 
