@@ -94,30 +94,30 @@ fi
 
 log "Build successful. Deploying to $REMOTE_USER@$REMOTE_HOST:$REMOTE_DEPLOY_DIR..."
 
-# # Create backup on remote server and remove old deployment
-# log "Removing old deployment and creating backup on remote server..."
-# ssh -q "$REMOTE_USER@$REMOTE_HOST" "
-# # Remove old backup if it exists
-# [ -d \"$REMOTE_BACKUP_DIR\" ] && sudo rm -rf \"$REMOTE_BACKUP_DIR\"
-# # Move current deployment to backup
-# if [ -d \"$REMOTE_DEPLOY_DIR\" ]; then
-#     sudo mv \"$REMOTE_DEPLOY_DIR\" \"$REMOTE_BACKUP_DIR\"
-# fi
-# # Create fresh deployment directory
-# sudo mkdir -p \"$REMOTE_DEPLOY_DIR\"
-# sudo chown $REMOTE_USER:$REMOTE_USER \"$REMOTE_DEPLOY_DIR\"
-# " || error_exit "Failed to prepare remote deployment directory"
+# Create backup on remote server and remove old deployment
+log "Removing old deployment and creating backup on remote server..."
+ssh -q "$REMOTE_USER@$REMOTE_HOST" "
+# Remove old backup if it exists
+[ -d \"$REMOTE_BACKUP_DIR\" ] && sudo rm -rf \"$REMOTE_BACKUP_DIR\"
+# Move current deployment to backup
+if [ -d \"$REMOTE_DEPLOY_DIR\" ]; then
+    sudo mv \"$REMOTE_DEPLOY_DIR\" \"$REMOTE_BACKUP_DIR\"
+fi
+# Create fresh deployment directory
+sudo mkdir -p \"$REMOTE_DEPLOY_DIR\"
+sudo chown $REMOTE_USER:$REMOTE_USER \"$REMOTE_DEPLOY_DIR\"
+" || error_exit "Failed to prepare remote deployment directory"
 
-# # Deploy using rsync over SSH
-# log "Syncing built site to remote server..."
-# rsync -avz --delete --rsh='ssh' "$TEMP_BUILD_DIR/" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_DEPLOY_DIR/" || error_exit "Failed to deploy to remote server"
+# Deploy using rsync over SSH
+log "Syncing built site to remote server..."
+rsync -avz --delete --rsh='ssh' "$TEMP_BUILD_DIR/" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_DEPLOY_DIR/" || error_exit "Failed to deploy to remote server"
 
-# # Set proper permissions on remote
-# log "Setting directory permissions on remote server..."
-# ssh -q "$REMOTE_USER@$REMOTE_HOST" "sudo chmod -R 755 \"$REMOTE_DEPLOY_DIR\"" || error_exit "Failed to set remote directory permissions"
+# Set proper permissions on remote
+log "Setting directory permissions on remote server..."
+ssh -q "$REMOTE_USER@$REMOTE_HOST" "sudo chmod -R 755 \"$REMOTE_DEPLOY_DIR\"" || error_exit "Failed to set remote directory permissions"
 
-# log "Remote deployment completed successfully!"
-# log "Static site ready at: $REMOTE_USER@$REMOTE_HOST:$REMOTE_DEPLOY_DIR"
+log "Remote deployment completed successfully!"
+log "Static site ready at: $REMOTE_USER@$REMOTE_HOST:$REMOTE_DEPLOY_DIR"
 
 exit 0
 
