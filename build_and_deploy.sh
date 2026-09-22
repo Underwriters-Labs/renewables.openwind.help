@@ -45,10 +45,11 @@ log "Starting OpenWind help build and deploy process"
 # Change to repo directory
 cd "$REPO_DIR" || error_exit "Cannot change to repo directory: $REPO_DIR"
 
-# Pull latest changes from git
-log "Pulling latest changes from git..."
+# Reset the deployment checkout to the exact remote main revision
+log "Resetting repository to origin/main..."
 git fetch origin || error_exit "git fetch failed"
-git pull --ff-only origin main || error_exit "git pull failed"
+git reset --hard origin/main || error_exit "Failed to reset repository to origin/main"
+git clean -fd || error_exit "Failed to remove untracked repository files"
 
 # Check if wiki content exists in backup folder, if so use it
 # If not, assume wiki content is already in place or will be manually synced
@@ -70,6 +71,7 @@ if [ -d "$CONTENT_DIR/.git" ]; then
     cd "$CONTENT_DIR" || error_exit "Cannot change to content directory"
     git fetch origin || error_exit "Failed to fetch wiki updates"
     git reset --hard origin/master || error_exit "Failed to reset wiki to remote state"
+    git clean -fdx || error_exit "Failed to remove untracked wiki files"
     cd "$REPO_DIR" || error_exit "Cannot change back to repo directory"
 else
     # Clone wiki for the first time
