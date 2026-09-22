@@ -8,7 +8,7 @@ set -e
 
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_DIR="$SCRIPT_DIR/renewables.openwind.help"
+REPO_DIR="$SCRIPT_DIR"
 WEBSITE_DIR="$REPO_DIR/website"
 CONTENT_DIR="$WEBSITE_DIR/content"
 BUILD_DIR="$WEBSITE_DIR/public"
@@ -48,9 +48,7 @@ cd "$REPO_DIR" || error_exit "Cannot change to repo directory: $REPO_DIR"
 # Pull latest changes from git
 log "Pulling latest changes from git..."
 git fetch origin || error_exit "git fetch failed"
-git reset --hard
-git clean -fd # removes untracked files
-git pull origin || error_exit "git pull failed"
+git pull --ff-only origin main || error_exit "git pull failed"
 
 # Check if wiki content exists in backup folder, if so use it
 # If not, assume wiki content is already in place or will be manually synced
